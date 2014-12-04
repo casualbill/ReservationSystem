@@ -5,6 +5,16 @@ $(function () {
 	var changeNameBtn = $('#changeNameBtn');
 	var sendMsgBtn = $('#sendMsgBtn');
 
+	generateTable();
+
+	$.getJSON('/reserveData', function (data) {
+		if (data) {
+			for (var i = 0; i < data.length; i++) {
+				$('tbody').find('input').eq(i).val(data[i]);
+			}
+		}
+	});
+
 	$.getJSON('/historyData', function (data) {
 		if (data) {
 			for (var i = 0; i < data.length; i++) {
@@ -15,32 +25,39 @@ $(function () {
 				}
 			}
 		}
+	});
 
-		socket = io.connect(window.location.origin);
-		socket.on('open', function(data) {
-			status.text(data.name);
-		});
-		socket.on('system', function(data) {
-			printSystemMsg(data);
-		});
-		socket.on('message', function(data) {
-			printChatMsg(data);
-		});
+	socket = io.connect(window.location.origin);
+	socket.on('open', function(data) {
+		status.text(data.name);
+	});
+	socket.on('system', function(data) {
+		printSystemMsg(data);
+	});
+	socket.on('message', function(data) {
+		printChatMsg(data);
+	});
+	socket.on('reserve', function(data) {
+		updateReserve(data);
 	});
 
 	textField.on('keydown', function(e) {
 		if (e.keyCode === 13) {
-			sendMsg();
+			sendChatMsg();
 		}
 	});
 	sendMsgBtn.on('click', function () {
-		sendMsg();
+		sendChatMsg();
 	});
 	changeNameBtn.on('click', function () {
 		changeName();
 	});
 
-	function sendMsg() {
+	$('tbody').find('input').on('blur', function () {
+		sendReserveMsg($(this).attr('index'), $(this).val());
+	});
+
+	function sendChatMsg() {
 		var text = textField.val();
 		if (text) {
 			socket.send({type: 'msg', msg: text});
@@ -53,6 +70,12 @@ $(function () {
 		if (newName) {
 			socket.send({type: 'name', msg: newName});
 			status.text(newName);
+		}
+	}
+
+	function sendReserveMsg(index, text) {
+		if (text) {
+			socket.send({type: 'reserve', index: index, msg: text});
 		}
 	}
 
@@ -73,6 +96,20 @@ $(function () {
 	function printChatMsg(data) {
 		var p = '<p>[' + data.time + ']<span style="color:' + data.color + ';"> ' + data.author + '</span> : ' + data.text + '</p>';
 		content.prepend(p);
+	}
+
+	function updateReserve(data) {
+		$('tbody').find('input').eq(data.index).val(data.text);
+		var p = '<p>[' + data.time + ']<span style="color:' + data.color + ';"> ' + data.author + '</span> 更改预定信息：' + data.text + '（对方排位：' + (parseInt(data.index / 2) + 1).toString() + '）</p>';
+		content.prepend(p);
+	}
+
+	function generateTable() {
+		var table = $('tbody');
+		for (var i = 0; i < 40; i++) {
+			var tr = $('<tr><td>' + (i + 1).toString() +'</td><td><input index="' + (i * 2).toString() + '" type="text" /></td><td><input index="' + (i * 2 + 1).toString() + '" type="text" /></td></tr>');
+			table.append(tr);
+		}
 	}
 
 });

@@ -6,6 +6,7 @@ var express = require('express')
 
 var userAmount = 0;
 var historyData = [];
+var reserveData = [];
 
 io.set('log level', 1); 
 
@@ -40,7 +41,6 @@ io.on('connection', function (socket) {
       obj['author'] = client.name;
       obj['type'] = 'message';
       console.log(client.name + ' say: ' + data.msg);
-
       historyData.push(obj);
 
       socket.emit('message', obj);
@@ -59,6 +59,19 @@ io.on('connection', function (socket) {
 
       socket.emit('system', obj);
       socket.broadcast.emit('system', obj);
+    }
+
+    if (data.type == 'reserve') {
+      obj['author'] = client.name;
+      obj['index'] = data.index;
+      obj['text'] = data.msg;
+
+      console.log(client.name + ' reserved ' + data.index + ' ' + data.msg);
+      historyData.push(obj);
+      reserveData[data.index] = data.msg;
+
+      socket.emit('reserve', obj);
+      socket.broadcast.emit('reserve', obj);
     }
       
   });
@@ -101,6 +114,11 @@ app.get('/', function(req, res){
 app.get('/historyData', function(req, res){
   res.writeHead(200, {"Content-Type": "application/javascript;charset=UTF-8"});
   res.end(JSON.stringify(historyData));
+});
+
+app.get('/reserveData', function(req, res){
+  res.writeHead(200, {"Content-Type": "application/javascript;charset=UTF-8"});
+  res.end(JSON.stringify(reserveData));
 });
 
 
