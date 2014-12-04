@@ -5,6 +5,7 @@ var express = require('express')
   , io = require('socket.io').listen(server);
 
 var userAmount = 0;
+var historyData = [];
 
 io.set('log level', 1); 
 
@@ -14,6 +15,7 @@ io.on('connection', function (socket) {
   userAmount++;
   var client = {
     socket: socket,
+    id: userAmount,
     name: '匿名' + userAmount,
     color: getColor()
   }
@@ -24,6 +26,8 @@ io.on('connection', function (socket) {
   obj['author'] = 'System';
   obj['type'] = 'welcome';
   console.log(client.name + ' Connect');
+  
+  historyData.push(obj);
 
   socket.emit('system', obj);
   socket.broadcast.emit('system', obj);
@@ -37,6 +41,8 @@ io.on('connection', function (socket) {
       obj['type'] = 'message';
       console.log(client.name + ' say: ' + data.msg);
 
+      historyData.push(obj);
+
       socket.emit('message', obj);
       socket.broadcast.emit('message', obj);
     }
@@ -49,6 +55,7 @@ io.on('connection', function (socket) {
 
       console.log(client.name + ' changed name: ' + data.msg);
       client.name = data.msg;
+      historyData.push(obj);
 
       socket.emit('system', obj);
       socket.broadcast.emit('system', obj);
@@ -90,6 +97,12 @@ app.configure('development', function(){
 app.get('/', function(req, res){
   res.sendfile('views/index.html');
 });
+
+app.get('/historyData', function(req, res){
+  res.writeHead(200, {"Content-Type": "application/javascript;charset=UTF-8"});
+  res.end(JSON.stringify(historyData));
+});
+
 
 server.listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));

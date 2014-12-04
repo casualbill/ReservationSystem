@@ -5,28 +5,28 @@ $(function () {
 	var changeNameBtn = $('#changeNameBtn');
 	var sendMsgBtn = $('#sendMsgBtn');
 
-	socket = io.connect(window.location.origin);
-	socket.on('open', function(data) {
-		status.text(data.name);
-	});
-	socket.on('system', function(data) {
-		var p = '';
-		if (data.type === 'welcome') {
-			p = '<p style="background:'+data.color+'">['+ data.time + '] 系统消息 : ' + data.text + ' 已连接</p>';
+	$.getJSON('/historyData', function (data) {
+		if (data) {
+			for (var i = 0; i < data.length; i++) {
+				if (data[i].author == 'System') {
+					printSystemMsg(data[i]);
+				} else {
+					printChatMsg(data[i]);
+				}
+			}
 		}
-		if (data.type == 'disconnect') {
-			p = '<p style="background:'+data.color+'">['+ data.time + '] 系统消息 : ' + data.text + ' 已断开</p>';
-		}
-		if (data.type == 'changeName') {
-			p = '<p style="background:'+data.color+'">['+ data.time + '] 系统消息 : ' + data.oldName + ' 已更名为 ' + data.newName + '</p>';
-		}
-		content.prepend(p);
-	});
-	socket.on('message', function(data) {
-		var p = '<p>[' + data.time + ']<span style="color:' + data.color + ';"> ' + data.author + '</span> : ' + data.text + '</p>';
-		content.prepend(p);
-	});
 
+		socket = io.connect(window.location.origin);
+		socket.on('open', function(data) {
+			status.text(data.name);
+		});
+		socket.on('system', function(data) {
+			printSystemMsg(data);
+		});
+		socket.on('message', function(data) {
+			printChatMsg(data);
+		});
+	});
 
 	textField.on('keydown', function(e) {
 		if (e.keyCode === 13) {
@@ -54,6 +54,25 @@ $(function () {
 			socket.send({type: 'name', msg: newName});
 			status.text(newName);
 		}
+	}
+
+	function printSystemMsg(data) {
+		var p = '';
+		if (data.type === 'welcome') {
+			p = '<p style="background:'+data.color+'">['+ data.time + '] 系统消息 : ' + data.text + ' 已连接</p>';
+		}
+		if (data.type == 'disconnect') {
+			p = '<p style="background:'+data.color+'">['+ data.time + '] 系统消息 : ' + data.text + ' 已断开</p>';
+		}
+		if (data.type == 'changeName') {
+			p = '<p style="background:'+data.color+'">['+ data.time + '] 系统消息 : ' + data.oldName + ' 已更名为 ' + data.newName + '</p>';
+		}
+		content.prepend(p);
+	}
+
+	function printChatMsg(data) {
+		var p = '<p>[' + data.time + ']<span style="color:' + data.color + ';"> ' + data.author + '</span> : ' + data.text + '</p>';
+		content.prepend(p);
 	}
 
 });
