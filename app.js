@@ -85,8 +85,10 @@ io.on('connection', function (socket) {
       type: 'disconnect'
     };
 
-    socket.broadcast.emit('system', obj);
     console.log(client.name + ' Disconnect');
+    historyData.push(obj);
+    
+    socket.broadcast.emit('system', obj);
   });
 
 });
