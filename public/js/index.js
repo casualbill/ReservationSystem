@@ -51,8 +51,14 @@ $(function () {
 		changeName();
 	});
 
-	$('tbody').find('input').on('blur', function () {
-		sendReserveMsg($(this).attr('index'), $(this).val());
+	$('tbody').find('input').on('focus', function () {
+		var self = $(this);
+		var formerText = self.val()
+		self.one('blur', function () {
+			if (formerText != self.val()) {
+				sendReserveMsg($(this).attr('index'), $(this).val());
+			}
+		})
 	});
 
 	function sendChatMsg() {
