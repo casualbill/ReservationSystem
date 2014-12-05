@@ -72,9 +72,7 @@ $(function () {
 	}
 
 	function sendReserveMsg(index, text) {
-		if (text) {
-			socket.send({type: 'reserve', index: index, msg: text});
-		}
+		socket.send({type: 'reserve', index: index, msg: text});
 	}
 
 	function printSystemMsg(data) {
