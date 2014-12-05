@@ -7,33 +7,27 @@ $(function () {
 
 	generateTable();
 
-	$.getJSON('/reserveData', function (data) {
-		if (data) {
-			for (var i = 0; i < data.length; i++) {
-				$('tbody').find('input').eq(i).val(data[i]);
+	socket = io.connect(window.location.origin);
+	socket.on('open', function(data) {
+		status.text(data.name);
+		if (data.reserveData) {
+			for (var i = 0; i < data.reserveData.length; i++) {
+				$('tbody').find('input').eq(i).val(data.reserveData[i]);
 			}
 		}
-	});
-
-	$.getJSON('/historyData', function (data) {
-		if (data) {
-			for (var i = 0; i < data.length; i++) {
-				if (data[i].author == 'System') {
-					printSystemMsg(data[i]);
+		if (data.historyData) {
+			for (var i = 0; i < data.historyData.length; i++) {
+				if (data.historyData[i].author == 'System') {
+					printSystemMsg(data.historyData[i]);
 				} else {
-					if (data[i].index) {
-						printReserveMsg(data[i]);
+					if (data.historyData[i].index) {
+						printReserveMsg(data.historyData[i]);
 					} else {
-						printChatMsg(data[i]);
+						printChatMsg(data.historyData[i]);
 					}
 				}
 			}
 		}
-	});
-
-	socket = io.connect(window.location.origin);
-	socket.on('open', function(data) {
-		status.text(data.name);
 	});
 	socket.on('system', function(data) {
 		printSystemMsg(data);
