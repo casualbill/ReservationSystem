@@ -21,7 +21,11 @@ $(function () {
 				if (data[i].author == 'System') {
 					printSystemMsg(data[i]);
 				} else {
-					printChatMsg(data[i]);
+					if (data[i].index) {
+						printReserveMsg(data[i]);
+					} else {
+						printChatMsg(data[i]);
+					}
 				}
 			}
 		}
@@ -98,10 +102,14 @@ $(function () {
 		content.prepend(p);
 	}
 
-	function updateReserve(data) {
-		$('tbody').find('input').eq(data.index).val(data.text);
+	function printReserveMsg(data) {
 		var p = '<p>[' + data.time + ']<span style="color:' + data.color + ';"> ' + data.author + '</span> 更改预定信息：' + data.text + '（对方排位：' + (parseInt(data.index / 2) + 1).toString() + '）</p>';
 		content.prepend(p);
+	}
+
+	function updateReserve(data) {
+		$('tbody').find('input').eq(data.index).val(data.text);
+		printReserveMsg(data);
 	}
 
 	function generateTable() {
