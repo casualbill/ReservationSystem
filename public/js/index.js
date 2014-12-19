@@ -5,9 +5,14 @@ $(function () {
 	var changeNameBtn = $('#changeNameBtn');
 	var sendMsgBtn = $('#sendMsgBtn');
 
+	if (document.documentMode === 7) {
+		alert ('您的浏览器版本过低或文档模式设置错误，请尝试按F12并将文档模式调整至最高版本！');
+	}
+
 	generateTable();
 
 	socket = io.connect(window.location.origin);
+
 	socket.on('open', function(data) {
 		status.text(data.name);
 		if (data.reserveData) {
