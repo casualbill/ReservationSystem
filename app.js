@@ -20,7 +20,15 @@ io.on('connection', function (socket) {
     name: '匿名' + userAmount,
     color: getColor()
   }
-  socket.emit('open', { name: client.name, historyData: historyData, reserveData: reserveData});
+  var historyDataTemp = [];
+  if (historyData.length <= 50) {
+    historyDataTemp = historyData;
+  } else {
+    for (var i = historyData.length - 50; i < historyData.length; i++) {
+      historyDataTemp.push(historyData[i]);
+    }
+  }
+  socket.emit('open', { name: client.name, historyData: historyDataTemp, reserveData: reserveData});
 
   var obj = { time: getTime(), color: client.color};
   obj['text'] = client.name;
