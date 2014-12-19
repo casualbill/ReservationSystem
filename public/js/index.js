@@ -14,6 +14,9 @@ $(function () {
 	socket = io.connect(window.location.origin);
 
 	socket.on('open', function(data) {
+		$('[type="text"]').val('');
+		$('#content').html('');
+
 		status.text(data.name);
 		if (data.reserveData) {
 			for (var i = 0; i < data.reserveData.length; i++) {
