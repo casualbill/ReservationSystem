@@ -26,7 +26,7 @@ $(function () {
 		if (data.historyData) {
 			for (var i = 0; i < data.historyData.length; i++) {
 				if (data.historyData[i].author == 'System') {
-					printSystemMsg(data.historyData[i]);
+					// printSystemMsg(data.historyData[i]);
 				} else {
 					if (data.historyData[i].index) {
 						printReserveMsg(data.historyData[i]);
@@ -41,7 +41,8 @@ $(function () {
 		changeName(username, data.name);
 	});
 	socket.on('system', function(data) {
-		printSystemMsg(data);
+		// printSystemMsg(data);
+		console.log(data)
 	});
 	socket.on('message', function(data) {
 		printChatMsg(data);
