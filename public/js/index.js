@@ -127,7 +127,7 @@ $(function () {
 
 	function generateTable() {
 		var table = $('tbody');
-		for (var i = 0; i < 40; i++) {
+		for (var i = 0; i < 30; i++) {
 			var tr = $('<tr><td>' + (i + 1).toString() +'</td><td><input index="' + (i * 2).toString() + '" type="text" /></td><td><input index="' + (i * 2 + 1).toString() + '" type="text" /></td></tr>');
 			table.append(tr);
 		}
