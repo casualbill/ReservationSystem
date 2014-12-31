@@ -36,6 +36,9 @@ $(function () {
 				}
 			}
 		}
+
+		var username = window.localStorage.getItem('username');
+		changeName(username, data.name);
 	});
 	socket.on('system', function(data) {
 		printSystemMsg(data);
@@ -77,11 +80,15 @@ $(function () {
 		}
 	}
 
-	function changeName() {
-		var newName = prompt('请输入您的新名字');
-		if (newName) {
+	function changeName(newName, oldName) {
+		if (!newName) {
+			newName = prompt('请输入您的新名字', oldName ? oldName : '');
+		}
+
+		if (newName && newName.length > 0) {
 			socket.send({type: 'name', msg: newName});
 			status.text(newName);
+			window.localStorage.setItem('username', newName);
 		}
 	}
 
