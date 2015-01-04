@@ -10,21 +10,24 @@
 </head>
 <body>
 	<h1>流星作战部落战预约系统</h1>
-	<div id="table">
-		<table>
-			<tbody>
-				<tr>
-					<th>对方排位</th>
-					<th>预约人</th>
-					<th>打法</th>
-				</tr>
-			</tbody>
-		</table>
+	<div id="container" style="display: none;">
+		<div id="table">
+			<table>
+				<tbody>
+					<tr>
+						<th>对方排位</th>
+						<th>预约人</th>
+						<th>打法</th>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div>
+			<span id="status">正在连接...</span><input id="changeNameBtn" type="button" value="改名" />
+			<input type="text" id="textField" /><input id="sendMsgBtn" type="button" value="发送" />
+		</div>
+		<div id="content"></div>
 	</div>
-	<div>
-		<span id="status">正在连接...</span><input id="changeNameBtn" type="button" value="改名" />
-		<input type="text" id="textField" /><input id="sendMsgBtn" type="button" value="发送" />
-	</div>
-	<div id="content"></div>
+	<div id="disconnect">正在连接，请稍候...</div>
 </body>
 </html>

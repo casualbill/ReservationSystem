@@ -14,6 +14,8 @@ $(function () {
 	socket = io.connect(window.location.origin);
 
 	socket.on('open', function(data) {
+		$('#disconnect').hide();
+		$('#container').show();
 		$('[type="text"]').val('');
 		$('#content').html('');
 
@@ -39,6 +41,10 @@ $(function () {
 
 		var username = window.localStorage.getItem('username');
 		changeName(username, data.name);
+	});
+	socket.on('disconnect', function () {
+		$('#container').hide();
+		$('#disconnect').show();
 	});
 	socket.on('system', function(data) {
 		// printSystemMsg(data);

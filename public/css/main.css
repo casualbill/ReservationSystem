@@ -3,6 +3,11 @@ body { font-family: tahoma; font-size: 12px; margin: 10px;}
 p { line-height: 18px; padding: 2px;}
 table { text-align: center;}
 
+#disconnect {
+    color: #F00;
+    font-size: 18px;
+}
+
 #content { 
     padding: 5px; 
     background: #ddd; 
