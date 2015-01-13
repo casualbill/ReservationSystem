@@ -8,6 +8,10 @@ var userAmount = 0;
 var historyData = [];
 var reserveData = [];
 
+for (var i = 0; i < 30; i++) {
+  reserveData.push({applicant: null, strategy: null});
+}
+
 io.set('log level', 1); 
 
 io.on('connection', function (socket) {
@@ -62,17 +66,24 @@ io.on('connection', function (socket) {
       socket.broadcast.emit('system', obj);
     }
 
-    if (data.type == 'reserve') {
+    if (data.type == 'reserveText') {
       obj['author'] = client.name;
-      obj['index'] = data.index;
+      obj['opponentIndex'] = data.opponentIndex;
+      obj['textIndex'] = data.textIndex;
       obj['text'] = data.msg;
 
-      console.log(client.name + ' reserved ' + data.index + ' ' + data.msg);
+      console.log(client.name + ' reserved opponent:' + data.opponentIndex + ' text:' + data.textIndex + ' ' + data.msg);
       historyData.push(obj);
-      reserveData[data.index] = data.msg;
 
-      socket.emit('reserve', obj);
-      socket.broadcast.emit('reserve', obj);
+      if (data.textIndex == 0) {
+        reserveData[data.opponentIndex - 1].applicant = data.msg;
+      }
+      if (data.textIndex == 1) {
+        reserveData[data.opponentIndex - 1].strategy = data.msg;
+      }
+
+      socket.emit('reserveText', obj);
+      socket.broadcast.emit('reserveText', obj);
     }
       
   });

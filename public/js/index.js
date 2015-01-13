@@ -22,7 +22,8 @@ $(function () {
 		status.text(data.name);
 		if (data.reserveData) {
 			for (var i = 0; i < data.reserveData.length; i++) {
-				$('tbody').find('input').eq(i).val(data.reserveData[i]);
+				$('tbody').find('input').eq(i * 2).val(data.reserveData[i].applicant);
+				$('tbody').find('input').eq(i * 2 + 1).val(data.reserveData[i].strategy);
 			}
 		}
 		if (data.historyData) {
@@ -30,7 +31,7 @@ $(function () {
 				if (data.historyData[i].author == 'System') {
 					// printSystemMsg(data.historyData[i]);
 				} else {
-					if (data.historyData[i].index) {
+					if (data.historyData[i].opponentIndex) {
 						printReserveMsg(data.historyData[i]);
 					} else {
 						printChatMsg(data.historyData[i]);
@@ -53,8 +54,8 @@ $(function () {
 	socket.on('message', function(data) {
 		printChatMsg(data);
 	});
-	socket.on('reserve', function(data) {
-		updateReserve(data);
+	socket.on('reserveText', function(data) {
+		updateReserveText(data);
 	});
 
 	textField.on('keydown', function(e) {
@@ -74,7 +75,7 @@ $(function () {
 		var formerText = self.val()
 		self.one('blur', function () {
 			if (formerText != self.val()) {
-				sendReserveMsg($(this).attr('index'), $(this).val());
+				sendReserveText(self.parent().parent().attr('index'), self.parent().index() - 1, self.val());
 			}
 		})
 	});
@@ -99,8 +100,8 @@ $(function () {
 		}
 	}
 
-	function sendReserveMsg(index, text) {
-		socket.send({type: 'reserve', index: index, msg: text});
+	function sendReserveText(opponentIndex, textIndex, text) {
+		socket.send({type: 'reserveText', opponentIndex: opponentIndex, textIndex: textIndex, msg: text});
 	}
 
 	function printSystemMsg(data) {
@@ -123,19 +124,20 @@ $(function () {
 	}
 
 	function printReserveMsg(data) {
-		var p = '<p>[' + data.time + ']<span style="color:' + data.color + ';"> ' + data.author + '</span> 更改预定信息：' + data.text + '（对方排位：' + (parseInt(data.index / 2) + 1).toString() + '）</p>';
+		var p = '<p>[' + data.time + ']<span style="color:' + data.color + ';"> ' + data.author + '</span> 更改预定信息：' + data.text + '（对方排位：' + data.opponentIndex + '）</p>';
 		content.prepend(p);
 	}
 
-	function updateReserve(data) {
-		$('tbody').find('input').eq(data.index).val(data.text);
+	function updateReserveText(data) {
+		$('tbody').find('input').eq((data.opponentIndex - 1) * 2 + data.textIndex).val(data.text);
 		printReserveMsg(data);
 	}
 
 	function generateTable() {
 		var table = $('tbody');
 		for (var i = 0; i < 30; i++) {
-			var tr = $('<tr><td>' + (i + 1).toString() +'</td><td><input index="' + (i * 2).toString() + '" type="text" /></td><td><input index="' + (i * 2 + 1).toString() + '" type="text" /></td></tr>');
+			var indexStr = (i + 1).toString();
+			var tr = $('<tr index="' + indexStr + '"><td>' + indexStr +'</td><td><input type="text" /></td><td><input type="text" /></td></tr>');
 			table.append(tr);
 		}
 	}
