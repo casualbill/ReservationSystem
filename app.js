@@ -9,7 +9,7 @@ var historyData = [];
 var reserveData = [];
 
 for (var i = 0; i < 30; i++) {
-  reserveData.push({applicant: null, strategy: null});
+  reserveData.push({applicant: null, strategy: null, status: 0});
 }
 
 io.set('log level', 1); 
@@ -71,8 +71,9 @@ io.on('connection', function (socket) {
       obj['opponentIndex'] = data.opponentIndex;
       obj['textIndex'] = data.textIndex;
       obj['text'] = data.msg;
+      obj['type'] = 'reserveText';
 
-      console.log(client.name + ' reserved opponent:' + data.opponentIndex + ' text:' + data.textIndex + ' ' + data.msg);
+      console.log(client.name + ' changed reserve info. Opponent:' + data.opponentIndex + ', Text:' + data.textIndex + ' ' + data.msg);
       historyData.push(obj);
 
       if (data.textIndex == 0) {
@@ -84,6 +85,23 @@ io.on('connection', function (socket) {
 
       socket.emit('reserveText', obj);
       socket.broadcast.emit('reserveText', obj);
+    }
+
+    if (data.type == 'reserveStatus') {
+      obj['author'] = client.name;
+      obj['index'] = data.index;
+      obj['value'] = data.value;
+      obj['type'] = 'reserveStatus';
+
+      console.log(client.name + ' changed reserve info. Opponent:' + data.index + ', Status:' + data.value);
+      historyData.push(obj);
+
+      reserveData[data.index - 1].status = data.value;
+      reserveData[data.index - 1].applicant = null;
+      reserveData[data.index - 1].strategy = null;
+
+      socket.emit('reserveStatus', obj);
+      socket.broadcast.emit('reserveStatus', obj);
     }
       
   });

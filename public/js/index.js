@@ -21,21 +21,23 @@ $(function () {
 
 		status.text(data.name);
 		if (data.reserveData) {
+			var inputArr = $('tbody').find('input');
 			for (var i = 0; i < data.reserveData.length; i++) {
-				$('tbody').find('input').eq(i * 2).val(data.reserveData[i].applicant);
-				$('tbody').find('input').eq(i * 2 + 1).val(data.reserveData[i].strategy);
+				inputArr.eq(i * 2).val(data.reserveData[i].applicant);
+				inputArr.eq(i * 2 + 1).val(data.reserveData[i].strategy);
+				$('tbody').find('select').eq(i).val(data.reserveData[i].status);
+				if (data.reserveData[i].status == '3') {
+					inputArr.eq(i * 2).attr('disabled', true);
+					inputArr.eq(i * 2 + 1).attr('disabled', true);
+				}
 			}
 		}
 		if (data.historyData) {
 			for (var i = 0; i < data.historyData.length; i++) {
-				if (data.historyData[i].author == 'System') {
-					// printSystemMsg(data.historyData[i]);
-				} else {
-					if (data.historyData[i].opponentIndex) {
-						printReserveMsg(data.historyData[i]);
-					} else {
-						printChatMsg(data.historyData[i]);
-					}
+				switch (data.historyData[i].type) {
+					case 'message': printChatMsg(data.historyData[i]); break;
+					case 'reserveText': printReserveTextMsg(data.historyData[i]); break;
+					case 'reserveStatus': printReserveStatusMsg(data.historyData[i]); break;
 				}
 			}
 		}
@@ -49,7 +51,7 @@ $(function () {
 	});
 	socket.on('system', function(data) {
 		// printSystemMsg(data);
-		console.log(data)
+		// console.log(data)
 	});
 	socket.on('message', function(data) {
 		printChatMsg(data);
@@ -57,7 +59,9 @@ $(function () {
 	socket.on('reserveText', function(data) {
 		updateReserveText(data);
 	});
-
+	socket.on('reserveStatus', function(data) {
+		updateReserveStatus(data);
+	});
 	textField.on('keydown', function(e) {
 		if (e.keyCode === 13) {
 			sendChatMsg();
@@ -75,9 +79,13 @@ $(function () {
 		var formerText = self.val()
 		self.one('blur', function () {
 			if (formerText != self.val()) {
-				sendReserveText(self.parent().parent().attr('index'), self.parent().index() - 1, self.val());
+				sendReserveText(parseInt(self.parent().parent().attr('index')), self.parent().index() - 1, self.val());
 			}
 		})
+	});
+
+	$('tbody').find('select').on('change', function () {
+		sendReserveStatus(parseInt($(this).parent().parent().attr('index')), $(this).val());
 	});
 
 	function sendChatMsg() {
@@ -104,6 +112,10 @@ $(function () {
 		socket.send({type: 'reserveText', opponentIndex: opponentIndex, textIndex: textIndex, msg: text});
 	}
 
+	function sendReserveStatus(index, value) {	
+		socket.send({type: 'reserveStatus', index: index, value: value});
+	}
+
 	function printSystemMsg(data) {
 		var p = '';
 		if (data.type === 'welcome') {
@@ -123,21 +135,49 @@ $(function () {
 		content.prepend(p);
 	}
 
-	function printReserveMsg(data) {
+	function printReserveTextMsg(data) {
 		var p = '<p>[' + data.time + ']<span style="color:' + data.color + ';"> ' + data.author + '</span> 更改预定信息：' + data.text + '（对方排位：' + data.opponentIndex + '）</p>';
+		content.prepend(p);
+	}
+
+	function printReserveStatusMsg(data) {	
+		var statusText;
+		switch (data.value) {
+			case '0': statusText = '未进攻'; break;
+			case '1': statusText = '一星'; break;
+			case '2': statusText = '两星'; break;
+			case '3': statusText = '三星'; break;
+		}
+		var p = '<p>[' + data.time + ']<span style="color:' + data.color + ';"> ' + data.author + '</span> 更改战况：' + statusText + '（对方排位：' + data.index + '）</p>';
 		content.prepend(p);
 	}
 
 	function updateReserveText(data) {
 		$('tbody').find('input').eq((data.opponentIndex - 1) * 2 + data.textIndex).val(data.text);
-		printReserveMsg(data);
+		printReserveTextMsg(data);
+	}
+
+	function updateReserveStatus(data) {
+		// $('tbody').find('select').eq(data.index - 1).val(data.value);
+		var tr = $('[index=' + data.index + ']');	
+		tr.find('input').val('');
+		tr.find('select').val(data.value);
+
+		if (data.value == '3') {
+			tr.find('input').attr('disabled', true);
+		} else {
+			tr.find('input').attr('disabled', false);
+		}
+
+		printReserveStatusMsg(data);
 	}
 
 	function generateTable() {
 		var table = $('tbody');
+		var selectTemp = '<select><option value="0">未进攻</option><option value="1">一星</option><option value="2">两星</option><option value="3">三星</option></select>'
 		for (var i = 0; i < 30; i++) {
 			var indexStr = (i + 1).toString();
-			var tr = $('<tr index="' + indexStr + '"><td>' + indexStr +'</td><td><input type="text" /></td><td><input type="text" /></td></tr>');
+			var tr = $('<tr index="' + indexStr + '"><td>' + indexStr +'</td><td><input type="text" /></td><td><input type="text" /></td><td>' + selectTemp + '</td></tr>');
 			table.append(tr);
 		}
 	}
