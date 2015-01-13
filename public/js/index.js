@@ -18,6 +18,7 @@ $(function () {
 		$('#container').show();
 		$('[type="text"]').val('');
 		$('#content').html('');
+		$('input').attr('disabled', false);
 
 		status.text(data.name);
 		if (data.reserveData) {
