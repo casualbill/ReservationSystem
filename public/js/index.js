@@ -4,6 +4,7 @@ $(function () {
 	var textField = $('#textField');
 	var changeNameBtn = $('#changeNameBtn');
 	var sendMsgBtn = $('#sendMsgBtn');
+	var interval;
 
 	if (document.documentMode === 7) {
 		alert ('您的浏览器版本过低或文档模式设置错误，请尝试按F12并将文档模式调整至最高版本！');
@@ -19,6 +20,11 @@ $(function () {
 		$('[type="text"]').val('');
 		$('#content').html('');
 		$('input').attr('disabled', false);
+		clearInterval(interval);
+
+		if (data.endTime) {
+			resetTimer(data.endTime, data.serverTime);
+		}
 
 		status.text(data.name);
 		if (data.reserveData) {
@@ -63,6 +69,10 @@ $(function () {
 	socket.on('reserveStatus', function(data) {
 		updateReserveStatus(data);
 	});
+	socket.on('timeReset', function(data) {
+		resetTimer(data.endTime, data.serverTime);
+	});
+
 	textField.on('keydown', function(e) {
 		if (e.keyCode === 13) {
 			sendChatMsg();
@@ -178,9 +188,48 @@ $(function () {
 		var selectTemp = '<select><option value="0">未进攻</option><option value="1">一星</option><option value="2">两星</option><option value="3">三星</option></select>'
 		for (var i = 0; i < 30; i++) {
 			var indexStr = (i + 1).toString();
-			var tr = $('<tr index="' + indexStr + '"><td>' + indexStr +'</td><td><input type="text" /></td><td><input type="text" /></td><td>' + selectTemp + '</td></tr>');
+			var tr = $('<tr index="' + indexStr + '"><td>' + indexStr +'</td><td><input type="text" /></td><td><input type="text" /></td><td>' + selectTemp + '</td><td></td></tr>');
 			table.append(tr);
 		}
+	}
+
+	function resetTimer(endTime, serverTime) {
+		clearInterval(interval);
+		var timeDiff = endTime - serverTime;
+		showTimeRemaining(timeDiff);
+		
+		interval = setInterval(function () {
+			if (timeDiff > 0) {
+				timeDiff = timeDiff - 1000;
+				showTimeRemaining(timeDiff);
+			} else {
+				clearInterval(interval);
+			}
+		}, 1000);
+	}
+
+	function showTimeRemaining(timeDiff) {
+		if (timeDiff > 0) {
+			$('h2').html('距离部落战结束还有' + calcTimeRemaining(timeDiff));
+		} else {
+			$('h2').html('部落战已结束');
+			$('tbody').find('input').attr('disabled', true);
+			$('select').attr('disabled', true);
+		}
+	}
+
+	function calcTimeRemaining(timestamp) {
+		var hour = parseInt(timestamp / 3600000);
+		var min = parseInt(timestamp % 3600000 / 60000);
+		var sec = parseInt(timestamp % 3600000 % 60000 / 1000);
+		return hour.toString() + ':' + addZero(min) + ':' + addZero(sec);
+	}
+
+	function addZero(str) {
+		if (str.toString().length == 1) {
+			return '0' + str;
+		}
+		return str.toString();
 	}
 
 });

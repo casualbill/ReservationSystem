@@ -2,17 +2,21 @@ var express = require('express')
   , path = require('path')
   , app = express()
   , server = require('http').createServer(app)
-  , io = require('socket.io').listen(server);
+  , io = require('socket.io').listen(server)
+  , events = require('events')
+  , emitter = new events.EventEmitter();
 
 var userAmount = 0;
 var historyData = [];
 var reserveData = [];
+var endTime = new Date().valueOf() + 172800000;
+var globalSocket;
 
 for (var i = 0; i < 30; i++) {
-  reserveData.push({applicant: null, strategy: null, status: 0});
+  reserveData.push({applicant: null, strategy: null, status: 0, time: null});
 }
 
-io.set('log level', 1); 
+io.set('log level', 1);
 
 io.on('connection', function (socket) {
   // console.log(socket.handshake);
@@ -23,9 +27,15 @@ io.on('connection', function (socket) {
     id: userAmount,
     name: '匿名' + userAmount,
     color: getColor()
-  }
+  };
 
-  socket.emit('open', { name: client.name, historyData: historyData, reserveData: reserveData});
+  socket.emit('open', {
+    name: client.name,
+    historyData: historyData,
+    reserveData: reserveData,
+    serverTime: new Date().valueOf(),
+    endTime: endTime ? endTime.valueOf() : null
+  });
 
   var obj = { time: getTime(), color: client.color};
   obj['text'] = client.name;
@@ -103,7 +113,7 @@ io.on('connection', function (socket) {
       socket.emit('reserveStatus', obj);
       socket.broadcast.emit('reserveStatus', obj);
     }
-      
+
   });
 
   socket.on('disconnect', function () {  
@@ -119,6 +129,20 @@ io.on('connection', function (socket) {
     historyData.push(obj);
     
     socket.broadcast.emit('system', obj);
+  });
+
+  emitter.removeAllListeners();
+  emitter.on('timeReset', function () {
+    var obj = {
+      time: getTime(),
+      color: client.color,
+      author: 'System',
+      endTime: endTime,
+      serverTime: new Date().valueOf(),
+      type: 'timeReset'
+    };
+    socket.emit('timeReset', obj);
+    socket.broadcast.emit('timeReset', obj);
   });
 
 });
@@ -141,6 +165,16 @@ app.configure('development', function(){
 
 app.get('/', function(req, res){
   res.sendfile('views/index.html');
+});
+
+app.get('/admin', function(req, res){
+  res.sendfile('views/admin.html');
+});
+
+app.post('/timecfg', function(req, res){
+  endTime = new Date(req.body.date + ' ' + req.body.time).valueOf();
+  emitter.emit('timeReset');
+  res.send('New time: ' + new Date(endTime).toString() + '<br />timestamp: ' + endTime);
 });
 
 app.get('/historyData', function(req, res){
