@@ -15,7 +15,7 @@ $(function () {
 
 	socket = io.connect(window.location.origin);
 
-	socket.on('open', function(data) {
+	socket.on('open', function (data) {
 		$('#disconnect').hide();
 		$('#container').show();
 		$('[type="text"]').val('');
@@ -57,24 +57,24 @@ $(function () {
 		$('#container').hide();
 		$('#disconnect').show();
 	});
-	socket.on('system', function(data) {
+	socket.on('system', function (data) {
 		// printSystemMsg(data);
 		// console.log(data)
 	});
-	socket.on('message', function(data) {
+	socket.on('message', function (data) {
 		printChatMsg(data);
 	});
-	socket.on('reserveText', function(data) {
+	socket.on('reserveText', function (data) {
 		updateReserveText(data);
 	});
-	socket.on('reserveStatus', function(data) {
+	socket.on('reserveStatus', function (data) {
 		updateReserveStatus(data);
 	});
-	socket.on('timeReset', function(data) {
+	socket.on('timeReset', function (data) {
 		resetTimer(data.endTime, data.serverTime, data.reserveData);
 	});
 
-	textField.on('keydown', function(e) {
+	textField.on('keydown', function (e) {
 		if (e.keyCode === 13) {
 			sendChatMsg();
 		}

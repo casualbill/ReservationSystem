@@ -10,7 +10,6 @@ var userAmount = 0;
 var historyData = [];
 var reserveData = [];
 var endTime = new Date().valueOf() + 172800000;
-var globalSocket;
 
 for (var i = 0; i < 30; i++) {
   reserveData.push({applicant: null, strategy: null, status: 0, endTime: 0, reserveTime: 0});
@@ -61,7 +60,7 @@ io.on('connection', function (socket) {
   socket.broadcast.emit('system', obj);
 
 
-  socket.on('message', function(data) {
+  socket.on('message', function (data) {
     var obj = { time: getTime(), color: client.color};
     if (data.type == 'msg') {    
       obj['text'] = data.msg;
@@ -169,7 +168,7 @@ io.on('connection', function (socket) {
 });
 
 
-app.configure(function(){
+app.configure(function () {
   app.set('port', process.env.PORT || 80);
   app.set('views', __dirname + '/views');
   app.use(express.favicon());
@@ -180,19 +179,19 @@ app.configure(function(){
   app.use(express.static(path.join(__dirname, 'public')));
 });
 
-app.configure('development', function(){
+app.configure('development', function () {
   app.use(express.errorHandler());
 });
 
-app.get('/', function(req, res){
+app.get('/', function (req, res) {
   res.sendfile('views/index.html');
 });
 
-app.get('/admin', function(req, res){
+app.get('/admin', function (req, res) {
   res.sendfile('views/admin.html');
 });
 
-app.post('/timecfg', function(req, res){
+app.post('/timecfg', function (req, res) {
   endTime = new Date(req.body.date + ' ' + req.body.time).valueOf();
   var nowTime = new Date().valueOf();
   for (var i = 0; i < reserveData.length; i++) {
@@ -205,18 +204,17 @@ app.post('/timecfg', function(req, res){
   res.send('New time: ' + new Date(endTime).toString() + '<br />timestamp: ' + endTime);
 });
 
-app.get('/historyData', function(req, res){
+app.get('/historyData', function (req, res) {
   res.writeHead(200, {"Content-Type": "application/javascript;charset=UTF-8"});
   res.end(JSON.stringify(historyData));
 });
 
-app.get('/reserveData', function(req, res){
+app.get('/reserveData', function (req, res) {
   res.writeHead(200, {"Content-Type": "application/javascript;charset=UTF-8"});
   res.end(JSON.stringify(reserveData));
 });
 
-
-server.listen(app.get('port'), function(){
+server.listen(app.get('port'), function () {
   console.log("Express server listening on port " + app.get('port'));
 });
 
