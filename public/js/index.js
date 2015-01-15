@@ -191,6 +191,8 @@ $(function () {
 			tr.find('input').attr('disabled', false);
 		}
 
+		$('h2').children().eq(1).html('当前共' + data.totalScore + '星');
+
 		printReserveStatusMsg(data);
 	}
 
@@ -242,9 +244,9 @@ $(function () {
 
 	function showTimeRemaining(timeDiff) {
 		if (timeDiff > 0) {
-			$('h2').html('距离部落战结束还有' + calcTimeRemaining(timeDiff));
+			$('h2').children().eq(0).html('距离部落战结束还有' + calcTimeRemaining(timeDiff));
 		} else {
-			$('h2').html('部落战已结束');
+			$('h2').children().eq(0).html('部落战已结束');
 			$('tbody').find('input').attr('disabled', true);
 			$('select').attr('disabled', true);
 		}

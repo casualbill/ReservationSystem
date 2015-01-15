@@ -12,7 +12,7 @@ var reserveData = [];
 var endTime = new Date().valueOf() + 172800000;
 
 for (var i = 0; i < 30; i++) {
-  reserveData.push({applicant: null, strategy: null, status: '0', endTime: 0, reserveTime: 0});
+  reserveData.push({applicant: null, strategy: null, status: '0', endTime: 0, reserveTime: 0, score: 0});
 }
 
 setInterval(function () {
@@ -123,16 +123,17 @@ io.on('connection', function (socket) {
       reserveData[data.index - 1].applicant = null;
       reserveData[data.index - 1].strategy = null;
       reserveData[data.index - 1].endTime = 0;
+      reserveData[data.index - 1].score = parseInt(data.value == '4' ? 0 : data.value);
 
       obj['author'] = client.name;
       obj['index'] = data.index;
       obj['value'] = data.value;
       obj['endTime'] = 0;
       obj['type'] = 'reserveStatus';
+      obj['totalScore'] = getTotalScore();
 
       console.log(client.name + ' changed reserve info. Opponent:' + data.index + ', Status:' + data.value);
       historyData.push(obj);
-
 
       socket.emit('reserveStatus', obj);
       socket.broadcast.emit('reserveStatus', obj);
@@ -241,4 +242,12 @@ var getReserveEndTime = function (reserveTime) {
   else if (timeDiff < 7200000 && timeDiff >= 3600000) { reserveEndTime = endTime - 3600000;}
   else if (timeDiff < 3600000) { reserveEndTime = endTime;}
   return reserveEndTime;
+}
+
+var getTotalScore = function () {
+  var sum = 0;
+  for (var i = 0; i < reserveData.length; i++) {
+    sum += reserveData[i].score;
+  }
+  return sum;
 }
