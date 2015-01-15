@@ -5,6 +5,7 @@ $(function () {
 	var changeNameBtn = $('#changeNameBtn');
 	var sendMsgBtn = $('#sendMsgBtn');
 	var interval;
+	var reserveTimeArr = [];
 
 	if (document.documentMode === 7) {
 		alert ('您的浏览器版本过低或文档模式设置错误，请尝试按F12并将文档模式调整至最高版本！');
@@ -23,7 +24,7 @@ $(function () {
 		clearInterval(interval);
 
 		if (data.endTime) {
-			resetTimer(data.endTime, data.serverTime);
+			resetTimer(data.endTime, data.serverTime, data.reserveData);
 		}
 
 		status.text(data.name);
@@ -70,7 +71,7 @@ $(function () {
 		updateReserveStatus(data);
 	});
 	socket.on('timeReset', function(data) {
-		resetTimer(data.endTime, data.serverTime);
+		resetTimer(data.endTime, data.serverTime, data.reserveData);
 	});
 
 	textField.on('keydown', function(e) {
@@ -164,15 +165,21 @@ $(function () {
 	}
 
 	function updateReserveText(data) {
+		var timeDiff = data.endTime - getTime();
 		$('tbody').find('input').eq((data.opponentIndex - 1) * 2 + data.textIndex).val(data.text);
+		$('tbody').find('span').eq(data.opponentIndex - 1).html(calcTimeRemaining(timeDiff));
+		reserveTimeArr[data.opponentIndex - 1] = timeDiff;
+
 		printReserveTextMsg(data);
 	}
 
 	function updateReserveStatus(data) {
-		// $('tbody').find('select').eq(data.index - 1).val(data.value);
 		var tr = $('[index=' + data.index + ']');	
 		tr.find('input').val('');
 		tr.find('select').val(data.value);
+		tr.find('span').html('')
+
+		reserveTimeArr[data.index - 1] = null;
 
 		if (data.value == '3') {
 			tr.find('input').attr('disabled', true);
@@ -188,20 +195,41 @@ $(function () {
 		var selectTemp = '<select><option value="0">未进攻</option><option value="1">一星</option><option value="2">两星</option><option value="3">三星</option></select>'
 		for (var i = 0; i < 30; i++) {
 			var indexStr = (i + 1).toString();
-			var tr = $('<tr index="' + indexStr + '"><td>' + indexStr +'</td><td><input type="text" /></td><td><input type="text" /></td><td>' + selectTemp + '</td><td></td></tr>');
+			var tr = $('<tr index="' + indexStr + '"><td>' + indexStr +'</td><td><input type="text" /></td><td><input type="text" /></td><td>' + selectTemp + '</td><td><span></span></td></tr>');
 			table.append(tr);
 		}
 	}
 
-	function resetTimer(endTime, serverTime) {
+	function resetTimer(endTime, serverTime, reserveData) {	
 		clearInterval(interval);
 		var timeDiff = endTime - serverTime;
 		showTimeRemaining(timeDiff);
+
+		for (var i = 0; i < reserveData.length; i++) {
+			if (reserveData[i].endTime > 0) {
+				reserveTimeArr[i] = reserveData[i].endTime - getTime();
+			} else {
+				reserveTimeArr[i] = null;
+			}
+		}
 		
 		interval = setInterval(function () {
 			if (timeDiff > 0) {
-				timeDiff = timeDiff - 1000;
+				timeDiff -= 1000;
 				showTimeRemaining(timeDiff);
+
+				for (var i = 0; i < reserveTimeArr.length; i++) {
+					if (reserveTimeArr[i]) {
+						if (reserveTimeArr[i] > 0) {
+							reserveTimeArr[i] -= 1000;
+							$('tbody').find('span').eq(i).html(calcTimeRemaining(reserveTimeArr[i]));
+						} else {
+							reserveTimeArr[i] = null;
+							$('tbody').find('span').eq(i).html('');
+							$('tbody').find('span').eq(i).closest('tr').find('input').val('');
+						}
+					}
+				}
 			} else {
 				clearInterval(interval);
 			}
@@ -232,4 +260,7 @@ $(function () {
 		return str.toString();
 	}
 
+	function getTime() {
+		return new Date().valueOf();
+	}
 });
