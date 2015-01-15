@@ -21,7 +21,9 @@ $(function () {
 		$('[type="text"]').val('');
 		$('#content').html('');
 		$('input').attr('disabled', false);
+		$('tbody').find('span').html('');
 		clearInterval(interval);
+		reserveTimeArr = [];
 
 		if (data.endTime) {
 			resetTimer(data.endTime, data.serverTime, data.reserveData);
