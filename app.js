@@ -12,7 +12,7 @@ var reserveData = [];
 var endTime = new Date().valueOf() + 172800000;
 
 for (var i = 0; i < 30; i++) {
-  reserveData.push({applicant: null, strategy: null, status: 0, endTime: 0, reserveTime: 0});
+  reserveData.push({applicant: null, strategy: null, status: '0', endTime: 0, reserveTime: 0});
 }
 
 setInterval(function () {
@@ -115,6 +115,15 @@ io.on('connection', function (socket) {
     }
 
     if (data.type == 'reserveStatus') {
+      if (data.value == '-1') {
+        data.value = '0';
+      }
+
+      reserveData[data.index - 1].status = data.value;
+      reserveData[data.index - 1].applicant = null;
+      reserveData[data.index - 1].strategy = null;
+      reserveData[data.index - 1].endTime = 0;
+
       obj['author'] = client.name;
       obj['index'] = data.index;
       obj['value'] = data.value;
@@ -124,10 +133,6 @@ io.on('connection', function (socket) {
       console.log(client.name + ' changed reserve info. Opponent:' + data.index + ', Status:' + data.value);
       historyData.push(obj);
 
-      reserveData[data.index - 1].status = data.value;
-      reserveData[data.index - 1].applicant = null;
-      reserveData[data.index - 1].strategy = null;
-      reserveData[data.index - 1].endTime = 0;
 
       socket.emit('reserveStatus', obj);
       socket.broadcast.emit('reserveStatus', obj);

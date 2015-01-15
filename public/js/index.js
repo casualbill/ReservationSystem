@@ -154,13 +154,15 @@ $(function () {
 		content.prepend(p);
 	}
 
-	function printReserveStatusMsg(data) {	
+	function printReserveStatusMsg(data) {
 		var statusText;
 		switch (data.value) {
 			case '0': statusText = '未进攻'; break;
 			case '1': statusText = '一星'; break;
 			case '2': statusText = '两星'; break;
 			case '3': statusText = '三星'; break;
+			case '4': statusText = '逗比'; break;
+			case '-1': statusText = '取消预订'; break;
 		}
 		var p = '<p>[' + data.time + ']<span style="color:' + data.color + ';"> ' + data.author + '</span> 更改战况：' + statusText + '（对方排位：' + data.index + '）</p>';
 		content.prepend(p);
@@ -194,7 +196,7 @@ $(function () {
 
 	function generateTable() {
 		var table = $('tbody');
-		var selectTemp = '<select><option value="0">未进攻</option><option value="1">一星</option><option value="2">两星</option><option value="3">三星</option></select>'
+		var selectTemp = '<select><option value="0">未进攻</option><option value="1">★</option><option value="2">★★</option><option value="3">★★★</option><option value="4">☆</option><option value="-1">取消预订</option></select>'
 		for (var i = 0; i < 30; i++) {
 			var indexStr = (i + 1).toString();
 			var tr = $('<tr index="' + indexStr + '"><td>' + indexStr +'</td><td><input type="text" /></td><td><input type="text" /></td><td>' + selectTemp + '</td><td><span></span></td></tr>');
