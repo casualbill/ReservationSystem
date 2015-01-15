@@ -219,10 +219,19 @@ $(function () {
 			}
 		}
 		
-		interval = setInterval(function () {
+		updateTimer();
+		interval = setInterval(updateTimer, 1000);
+
+		function updateTimer() {
 			if (timeDiff > 0) {
 				timeDiff -= 1000;
 				showTimeRemaining(timeDiff);
+
+				if (timeDiff > 86400000) {
+					$('tbody').find('select').attr('disabled', true);
+				} else {
+					$('tbody').find('select').attr('disabled', false);
+				}
 
 				for (var i = 0; i < reserveTimeArr.length; i++) {
 					if (reserveTimeArr[i]) {
@@ -239,7 +248,7 @@ $(function () {
 			} else {
 				clearInterval(interval);
 			}
-		}, 1000);
+		}
 	}
 
 	function showTimeRemaining(timeDiff) {
