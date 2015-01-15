@@ -2,9 +2,7 @@ var express = require('express')
   , path = require('path')
   , app = express()
   , server = require('http').createServer(app)
-  , io = require('socket.io').listen(server)
-  , events = require('events')
-  , emitter = new events.EventEmitter();
+  , io = require('socket.io').listen(server);
 
 var userAmount = 0;
 var historyData = [];
@@ -155,22 +153,6 @@ io.on('connection', function (socket) {
     
     socket.broadcast.emit('system', obj);
   });
-
-  emitter.removeAllListeners();
-  emitter.on('timeReset', function () {
-    var obj = {
-      time: getTime(),
-      color: client.color,
-      author: 'System',
-      endTime: endTime,
-      serverTime: new Date().valueOf(),
-      type: 'timeReset',
-      reserveData: reserveData
-    };
-    socket.emit('timeReset', obj);
-    socket.broadcast.emit('timeReset', obj);
-  });
-
 });
 
 
@@ -206,7 +188,16 @@ app.post('/timecfg', function (req, res) {
     }
   }
 
-  emitter.emit('timeReset');
+  var obj = {
+    time: getTime(),
+    author: 'System',
+    endTime: endTime,
+    serverTime: new Date().valueOf(),
+    type: 'timeReset',
+    reserveData: reserveData
+  };
+  io.sockets.emit('timeReset', obj);
+
   res.send('New time: ' + new Date(endTime).toString() + '<br />timestamp: ' + endTime);
 });
 
