@@ -22,6 +22,7 @@ $(function () {
 		$('#content').html('');
 		$('input').attr('disabled', false);
 		$('tbody').find('span').html('');
+		$('h2').children().eq(1).html('');
 		clearInterval(interval);
 		reserveTimeArr = [];
 
