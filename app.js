@@ -14,7 +14,7 @@ for (var i = 0; i < 30; i++) {
 }
 
 setInterval(function () {
-  var nowTime = new Date().valueOf();
+  var nowTime = getTime();
   for (var i = 0; i < reserveData.length; i++) {
     if (reserveData[i].endTime < nowTime) {
       reserveData[i].applicant = null;
@@ -42,7 +42,7 @@ io.on('connection', function (socket) {
     name: client.name,
     historyData: historyData,
     reserveData: reserveData,
-    serverTime: new Date().valueOf(),
+    serverTime: getTime(),
     endTime: endTime ? endTime.valueOf() : null
   });
 
@@ -93,7 +93,7 @@ io.on('connection', function (socket) {
         reserveData[data.opponentIndex - 1].strategy = data.msg;
       }
 
-      var reserveTime = new Date().valueOf();
+      var reserveTime = getTime();
       var reserveEndTime = getReserveEndTime(reserveTime);
       reserveData[data.opponentIndex - 1].reserveTime = reserveTime
       reserveData[data.opponentIndex - 1].endTime = reserveEndTime;
@@ -181,7 +181,7 @@ app.get('/admin', function (req, res) {
 
 app.post('/timecfg', function (req, res) {
   endTime = new Date(req.body.date + ' ' + req.body.time).valueOf();
-  var nowTime = new Date().valueOf();
+  var nowTime = getTime();
   for (var i = 0; i < reserveData.length; i++) {
     if (reserveData[i].endTime != 0) {
       reserveData[i].endTime = getReserveEndTime(reserveData[i].reserveTime);
@@ -192,7 +192,7 @@ app.post('/timecfg', function (req, res) {
     time: getTime(),
     author: 'System',
     endTime: endTime,
-    serverTime: new Date().valueOf(),
+    serverTime: getTime(),
     type: 'timeReset',
     reserveData: reserveData
   };
@@ -216,8 +216,7 @@ server.listen(app.get('port'), function () {
 });
 
 var getTime = function () {
-  var date = new Date();
-  return date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+  return new Date().valueOf();
 }
 
 var getColor = function () {

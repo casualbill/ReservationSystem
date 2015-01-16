@@ -134,24 +134,24 @@ $(function () {
 	function printSystemMsg(data) {
 		var p = '';
 		if (data.type === 'welcome') {
-			p = '<p style="background:'+data.color+'">['+ data.time + '] 系统消息 : ' + data.text + ' 已连接</p>';
+			p = '<p style="background:'+data.color+'">['+ timeFomatter(data.time) + '] 系统消息 : ' + data.text + ' 已连接</p>';
 		}
 		if (data.type == 'disconnect') {
-			p = '<p style="background:'+data.color+'">['+ data.time + '] 系统消息 : ' + data.text + ' 已断开</p>';
+			p = '<p style="background:'+data.color+'">['+ timeFomatter(data.time) + '] 系统消息 : ' + data.text + ' 已断开</p>';
 		}
 		if (data.type == 'changeName') {
-			p = '<p style="background:'+data.color+'">['+ data.time + '] 系统消息 : ' + data.oldName + ' 已更名为 ' + data.newName + '</p>';
+			p = '<p style="background:'+data.color+'">['+ timeFomatter(data.time) + '] 系统消息 : ' + data.oldName + ' 已更名为 ' + data.newName + '</p>';
 		}
 		content.prepend(p);
 	}
 
 	function printChatMsg(data) {
-		var p = '<p>[' + data.time + ']<span style="color:' + data.color + ';"> ' + data.author + '</span> : ' + data.text + '</p>';
+		var p = '<p>[' + timeFomatter(data.time) + ']<span style="color:' + data.color + ';"> ' + data.author + '</span> : ' + data.text + '</p>';
 		content.prepend(p);
 	}
 
 	function printReserveTextMsg(data) {
-		var p = '<p>[' + data.time + ']<span style="color:' + data.color + ';"> ' + data.author + '</span> 更改预定信息：' + data.text + '（对方排位：' + data.opponentIndex + '）</p>';
+		var p = '<p>[' + timeFomatter(data.time) + ']<span style="color:' + data.color + ';"> ' + data.author + '</span> 更改预定信息：' + data.text + '（对方排位：' + data.opponentIndex + '）</p>';
 		content.prepend(p);
 	}
 
@@ -165,7 +165,7 @@ $(function () {
 			case '4': statusText = '逗比'; break;
 			case '-1': statusText = '取消预订'; break;
 		}
-		var p = '<p>[' + data.time + ']<span style="color:' + data.color + ';"> ' + data.author + '</span> 更改战况：' + statusText + '（对方排位：' + data.index + '）</p>';
+		var p = '<p>[' + timeFomatter(data.time) + ']<span style="color:' + data.color + ';"> ' + data.author + '</span> 更改战况：' + statusText + '（对方排位：' + data.index + '）</p>';
 		content.prepend(p);
 	}
 
@@ -278,5 +278,10 @@ $(function () {
 
 	function getTime() {
 		return new Date().valueOf();
+	}
+
+	function timeFomatter(timestamp) {
+		var date = new Date(timestamp);
+		return date.getHours() + ':' + addZero(date.getMinutes()) + ':' + addZero(date.getSeconds());
 	}
 });
