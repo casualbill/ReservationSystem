@@ -16,11 +16,20 @@ for (var i = 0; i < 30; i++) {
 setInterval(function () {
   var nowTime = getTime();
   for (var i = 0; i < reserveData.length; i++) {
-    if (reserveData[i].endTime < nowTime) {
+    if (reserveData[i].endTime > 0 && reserveData[i].endTime < nowTime) {
       reserveData[i].applicant = null;
       reserveData[i].strategy = null;
       reserveData[i].endTime = 0;
       reserveData[i].reserveTime = 0;
+
+      var obj = {
+        time: nowTime,
+        author: 'System',
+        type: 'reserveExpired',
+        index: i
+      };
+      historyData.push(obj);
+      io.sockets.emit('reserveExpired', obj);
     }
   }
 }, 1000);
@@ -196,6 +205,7 @@ app.post('/timecfg', function (req, res) {
     type: 'timeReset',
     reserveData: reserveData
   };
+  historyData.push(obj);
   io.sockets.emit('timeReset', obj);
 
   res.send('New time: ' + new Date(endTime).toString() + '<br />timestamp: ' + endTime);

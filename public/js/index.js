@@ -49,6 +49,8 @@ $(function () {
 					case 'message': printChatMsg(data.historyData[i]); break;
 					case 'reserveText': printReserveTextMsg(data.historyData[i]); break;
 					case 'reserveStatus': printReserveStatusMsg(data.historyData[i]); break;
+					case 'timeReset' : printTimeResetMsg(data.historyData[i]); break;
+					case 'reserveExpired': printReserveExpiredMsg(data.historyData[i]); break;
 				}
 			}
 		}
@@ -75,6 +77,10 @@ $(function () {
 	});
 	socket.on('timeReset', function (data) {
 		resetTimer(data.endTime, data.serverTime, data.reserveData);
+		printTimeResetMsg(data);
+	});
+	socket.on('reserveExpired', function (data) {
+		printReserveExpiredMsg(data);
 	});
 
 	textField.on('keydown', function (e) {
@@ -167,6 +173,14 @@ $(function () {
 		}
 		var p = '<p>[' + timeFomatter(data.time) + ']<span style="color:' + data.color + ';"> ' + data.author + '</span> 更改战况：' + statusText + '（对方排位：' + data.index + '）</p>';
 		content.prepend(p);
+	}
+
+	function printTimeResetMsg(data) {
+		content.prepend('<p style="background: #999">['+ timeFomatter(data.time) + '] 系统消息 : 部落战结束时间已更新至' + timeFomatter(data.endTime, true) + ' </p>');
+	}
+
+	function printReserveExpiredMsg(data) {
+		content.prepend('<p style="background: #999">['+ timeFomatter(data.time) + '] 系统消息 : 对方排位' + (data.index + 1).toString() + ' 的预订已过期，预订信息重置</p>');
 	}
 
 	function updateReserveText(data) {
@@ -280,8 +294,13 @@ $(function () {
 		return new Date().valueOf();
 	}
 
-	function timeFomatter(timestamp) {
+	function timeFomatter(timestamp, fullDate) {
 		var date = new Date(timestamp);
-		return date.getHours() + ':' + addZero(date.getMinutes()) + ':' + addZero(date.getSeconds());
+		var dateStr = date.getFullYear() + '-' + (date.getMonth() + 1).toString() + '-' + date.getDate();
+		var timeStr = date.getHours() + ':' + addZero(date.getMinutes()) + ':' + addZero(date.getSeconds());
+		if (fullDate) {
+			return dateStr + ' ' + timeStr;
+		}
+		return timeStr;
 	}
 });
