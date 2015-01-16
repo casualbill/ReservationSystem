@@ -189,7 +189,7 @@ app.get('/admin', function (req, res) {
 });
 
 app.post('/timecfg', function (req, res) {
-  endTime = new Date(req.body.date + ' ' + req.body.time).valueOf();
+  endTime = parseInt(req.body.endTime);
   var nowTime = getTime();
   for (var i = 0; i < reserveData.length; i++) {
     if (reserveData[i].endTime != 0) {
