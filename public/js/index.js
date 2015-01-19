@@ -88,6 +88,9 @@ $(function () {
 	socket.on('reserveExpired', function (data) {
 		printReserveExpiredMsg(data);
 	});
+	socket.on('syncData', function (data) {
+		resetTimer(data.endTime, data.serverTime, data.reserveData);
+	});
 
 	textField.on('keydown', function (e) {
 		if (e.keyCode === 13) {

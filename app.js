@@ -13,6 +13,7 @@ for (var i = 0; i < 30; i++) {
   reserveData.push({applicant: null, strategy: null, status: '0', endTime: 0, reserveTime: 0, score: 0});
 }
 
+var syncTimer = 0;
 setInterval(function () {
   var nowTime = getTime();
   for (var i = 0; i < reserveData.length; i++) {
@@ -31,6 +32,12 @@ setInterval(function () {
       historyData.push(obj);
       io.sockets.emit('reserveExpired', obj);
     }
+  }
+
+  syncTimer++;
+  while (syncTimer == 60) {
+    syncTimer = 0;
+    io.sockets.emit('syncData', {endTime: endTime, serverTime: getTime(), reserveData: reserveData});
   }
 }, 1000);
 
