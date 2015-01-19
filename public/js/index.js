@@ -32,6 +32,7 @@ $(function () {
 
 		status.text(data.name);
 		if (data.reserveData) {
+			var totalScore = 0;
 			var inputArr = $('tbody').find('input');
 			for (var i = 0; i < data.reserveData.length; i++) {
 				inputArr.eq(i * 2).val(data.reserveData[i].applicant);
@@ -41,6 +42,11 @@ $(function () {
 					inputArr.eq(i * 2).attr('disabled', true);
 					inputArr.eq(i * 2 + 1).attr('disabled', true);
 				}
+				totalScore += data.reserveData[i].score;
+			}
+
+			if (totalScore > 0) {
+				$('h2').children().eq(1).html('当前共' + totalScore + '星');
 			}
 		}
 		if (data.historyData) {
