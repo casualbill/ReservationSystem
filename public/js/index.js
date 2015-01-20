@@ -23,14 +23,19 @@ $(function () {
 		$('input').attr('disabled', false);
 		$('tbody').find('span').html('');
 		$('h2').children().eq(1).html('');
+		$('h3').html('');
 		clearInterval(interval);
 		reserveTimeArr = [];
+
+		status.text(data.name);
 
 		if (data.endTime) {
 			resetTimer(data.endTime, data.serverTime, data.reserveData);
 		}
+		if (data.bulletin) {
+			$('h3').html(data.bulletin);
+		}
 
-		status.text(data.name);
 		if (data.reserveData) {
 			var totalScore = 0;
 			var inputArr = $('tbody').find('input');
@@ -90,6 +95,9 @@ $(function () {
 	});
 	socket.on('syncData', function (data) {
 		resetTimer(data.endTime, data.serverTime, data.reserveData);
+	});
+	socket.on('bulletin', function (data) {
+		$('h3').html(data.bulletin);
 	});
 
 	textField.on('keydown', function (e) {

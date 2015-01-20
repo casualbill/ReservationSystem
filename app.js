@@ -8,6 +8,7 @@ var userAmount = 0;
 var historyData = [];
 var reserveData = [];
 var endTime = new Date().valueOf() + 172800000;
+var bulletin;
 
 for (var i = 0; i < 30; i++) {
   reserveData.push({applicant: null, strategy: null, status: '0', endTime: 0, reserveTime: 0, score: 0});
@@ -56,6 +57,7 @@ io.on('connection', function (socket) {
 
   socket.emit('open', {
     name: client.name,
+    bulletin: bulletin,
     historyData: historyData,
     reserveData: reserveData,
     serverTime: getTime(),
@@ -216,6 +218,12 @@ app.post('/timecfg', function (req, res) {
   io.sockets.emit('timeReset', obj);
 
   res.send('New time: ' + new Date(endTime).toString() + '<br />timestamp: ' + endTime);
+});
+
+app.post('/bulletin', function (req, res) {
+  bulletin = req.body.bulletin;
+  io.sockets.emit('bulletin', {time: getTime(), bulletin: bulletin});
+  res.send('Bulletin: ' + bulletin);
 });
 
 app.get('/historyData', function (req, res) {
