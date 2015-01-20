@@ -135,14 +135,16 @@ $(function () {
 	}
 
 	function changeName(newName, oldName) {
-		if (!newName) {
+		if (!newName || newName.match('匿名')) {
 			newName = prompt('请输入您的新名字', oldName ? oldName : '');
 		}
 
-		if (newName && newName.length > 0) {
+		if (newName && newName.trim().length > 0 && !newName.match('匿名')) {
 			socket.send({type: 'name', msg: newName});
 			status.text(newName);
 			window.localStorage.setItem('username', newName);
+		} else {
+			setTimeout(changeName, 1000);
 		}
 	}
 
