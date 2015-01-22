@@ -133,6 +133,7 @@ io.on('connection', function (socket) {
     if (data.type == 'reserveStatus') {
       if (data.value != '-1') {
         reserveData[data.index - 1].status = data.value;
+        reserveData[data.index - 1].score = parseInt(data.value == '4' ? 0 : data.value);
         obj['cancel'] = false;
       } else {
         obj['cancel'] = true;
@@ -141,7 +142,6 @@ io.on('connection', function (socket) {
       reserveData[data.index - 1].applicant = null;
       reserveData[data.index - 1].strategy = null;
       reserveData[data.index - 1].endTime = 0;
-      reserveData[data.index - 1].score = parseInt(data.value == '4' ? 0 : data.value);
 
       obj['author'] = client.name;
       obj['index'] = data.index;
