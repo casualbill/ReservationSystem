@@ -182,15 +182,20 @@ $(function () {
 
 	function printReserveStatusMsg(data) {
 		var statusText;
-		switch (data.value) {
-			case '0': statusText = '未进攻'; break;
-			case '1': statusText = '一星'; break;
-			case '2': statusText = '两星'; break;
-			case '3': statusText = '三星'; break;
-			case '4': statusText = '逗比'; break;
-			case '-1': statusText = '取消预订'; break;
+		var p;
+		if (data.cancel) {
+			p = '<p>[' + timeFomatter(data.time) + ']<span style="color:' + data.color + ';"> ' + data.author + '</span> 取消了对方排位：' + data.index + '的预定</p>';
+		} else {
+			switch (data.value) {
+				case '0': statusText = '未进攻'; break;
+				case '1': statusText = '一星'; break;
+				case '2': statusText = '两星'; break;
+				case '3': statusText = '三星'; break;
+				case '4': statusText = '逗比'; break;
+				case '-1': statusText = '取消预订'; break;
+			}
+			p = '<p>[' + timeFomatter(data.time) + ']<span style="color:' + data.color + ';"> ' + data.author + '</span> 更改战况：' + statusText + '（对方排位：' + data.index + '）</p>';
 		}
-		var p = '<p>[' + timeFomatter(data.time) + ']<span style="color:' + data.color + ';"> ' + data.author + '</span> 更改战况：' + statusText + '（对方排位：' + data.index + '）</p>';
 		content.prepend(p);
 	}
 
@@ -214,11 +219,11 @@ $(function () {
 	function updateReserveStatus(data) {
 		var tr = $('[index=' + data.index + ']');	
 		tr.find('input').val('');
-		tr.find('select').val(data.value);
 		tr.find('span').html('')
 
 		reserveTimeArr[data.index - 1] = null;
 
+		tr.find('select').val(data.value);
 		if (data.value == '3') {
 			tr.find('input').attr('disabled', true);
 		} else {
