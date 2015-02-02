@@ -10,10 +10,6 @@ var reserveData = [];
 var endTime = new Date().valueOf() + 172800000;
 var bulletin;
 
-for (var i = 0; i < 30; i++) {
-  reserveData.push({applicant: null, strategy: null, status: '0', endTime: 0, reserveTime: 0, score: 0});
-}
-
 var syncTimer = 0;
 setInterval(function () {
   var nowTime = getTime();
@@ -221,6 +217,12 @@ app.post('/timecfg', function (req, res) {
   res.send('New time: ' + new Date(endTime).toString() + '<br />timestamp: ' + endTime);
 });
 
+app.post('/amount', function (req, res) {
+  var amount = req.body.amount;
+  initReserveData(amount);
+  res.send('Player amount: ' + amount);
+});
+
 app.post('/bulletin', function (req, res) {
   bulletin = req.body.bulletin;
   io.sockets.emit('bulletin', {time: getTime(), bulletin: bulletin});
@@ -266,4 +268,11 @@ var getTotalScore = function () {
     sum += reserveData[i].score;
   }
   return sum;
+}
+
+var initReserveData = function (amount) {
+  reserveData = [];
+  for (var i = 0; i < amount; i++) {
+    reserveData.push({applicant: null, strategy: null, status: '0', endTime: 0, reserveTime: 0, score: 0});
+  }
 }

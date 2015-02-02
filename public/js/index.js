@@ -11,8 +11,6 @@ $(function () {
 		alert ('您的浏览器版本过低或文档模式设置错误，请尝试按F12并将文档模式调整至最高版本！');
 	}
 
-	generateTable();
-
 	socket = io.connect(window.location.origin);
 
 	socket.on('open', function (data) {
@@ -36,7 +34,9 @@ $(function () {
 			$('h3').html(data.bulletin);
 		}
 
-		if (data.reserveData) {
+		if (data.reserveData.length > 0) {
+			generateTable(data.reserveData.length);
+
 			var totalScore = 0;
 			var inputArr = $('tbody').find('input');
 			for (var i = 0; i < data.reserveData.length; i++) {
@@ -54,6 +54,7 @@ $(function () {
 				$('h2').children().eq(1).html('当前共' + totalScore + '星');
 			}
 		}
+
 		if (data.historyData) {
 			for (var i = 0; i < data.historyData.length; i++) {
 				switch (data.historyData[i].type) {
@@ -110,20 +111,6 @@ $(function () {
 	});
 	changeNameBtn.on('click', function () {
 		changeName();
-	});
-
-	$('tbody').find('input').on('focus', function () {
-		var self = $(this);
-		var formerText = self.val()
-		self.one('blur', function () {
-			if (formerText != self.val()) {
-				sendReserveText(parseInt(self.parent().parent().attr('index')), self.parent().index() - 1, self.val());
-			}
-		})
-	});
-
-	$('tbody').find('select').on('change', function () {
-		sendReserveStatus(parseInt($(this).parent().parent().attr('index')), $(this).val());
 	});
 
 	function sendChatMsg() {
@@ -235,14 +222,29 @@ $(function () {
 		printReserveStatusMsg(data);
 	}
 
-	function generateTable() {
+	function generateTable(amount) {
+		$('#table').show();
 		var table = $('tbody');
 		var selectTemp = '<select><option value="0">未进攻</option><option value="1">★</option><option value="2">★★</option><option value="3">★★★</option><option value="4">☆</option><option value="-1">取消预订</option></select>'
-		for (var i = 0; i < 30; i++) {
+		for (var i = 0; i < amount; i++) {
 			var indexStr = (i + 1).toString();
 			var tr = $('<tr index="' + indexStr + '"><td>' + indexStr +'</td><td><input type="text" /></td><td><input type="text" /></td><td>' + selectTemp + '</td><td><span></span></td></tr>');
 			table.append(tr);
 		}
+
+		$('tbody').find('input').on('focus', function () {
+			var self = $(this);
+			var formerText = self.val()
+			self.one('blur', function () {
+				if (formerText != self.val()) {
+					sendReserveText(parseInt(self.parent().parent().attr('index')), self.parent().index() - 1, self.val());
+				}
+			})
+		});
+
+		$('tbody').find('select').on('change', function () {
+			sendReserveStatus(parseInt($(this).parent().parent().attr('index')), $(this).val());
+		});
 	}
 
 	function resetTimer(endTime, serverTime, reserveData) {	
