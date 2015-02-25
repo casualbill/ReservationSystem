@@ -226,6 +226,7 @@ $(function () {
 		$('#table').show();
 		var table = $('tbody');
 		var selectTemp = '<select><option value="0">未进攻</option><option value="1">★</option><option value="2">★★</option><option value="3">★★★</option><option value="4">☆</option><option value="-1">取消预订</option></select>'
+		table.html('<tr><th>对方排位</th><th>预约人</th><th>打法</th><th>战况</th><th>剩余时间</th></tr>');
 		for (var i = 0; i < amount; i++) {
 			var indexStr = (i + 1).toString();
 			var tr = $('<tr index="' + indexStr + '"><td>' + indexStr +'</td><td><input type="text" /></td><td><input type="text" /></td><td>' + selectTemp + '</td><td><span></span></td></tr>');
