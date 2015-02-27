@@ -4,11 +4,21 @@ var express = require('express')
   , server = require('http').createServer(app)
   , io = require('socket.io').listen(server);
 
-var userAmount = 0;
+var userAmount;
 var historyData = [];
 var reserveData = [];
-var endTime = new Date().valueOf() + 172800000;
+var endTime;
 var bulletin;
+
+var initSystem = function () {
+  userAmount = 0;
+  historyData = [];
+  reserveData = [];
+  endTime = new Date().valueOf() + 172800000;
+  bulletin = '';
+}
+
+initSystem();
 
 var syncTimer = 0;
 setInterval(function () {
@@ -192,6 +202,11 @@ app.get('/', function (req, res) {
 
 app.get('/admin', function (req, res) {
   res.sendfile('views/admin.html');
+});
+
+app.post('/restart', function (req, res) {
+  initSystem();
+  res.send('System restarted');
 });
 
 app.post('/timecfg', function (req, res) {

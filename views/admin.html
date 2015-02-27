@@ -33,6 +33,10 @@
 	<input type="text" name="bulletin" />
 	<input type="submit" />
 </form>
+<br />
+<form action="/restart" method="POST">
+	<input type="submit" value="重启" />
+</form>
 
 <script>
 var date = new Date(new Date().valueOf() + 172740000);
@@ -62,6 +66,10 @@ document.getElementsByTagName('form')[1].onsubmit = function () {
 	} else {
 		return false;
 	}
+};
+
+document.getElementsByTagName('form')[4].onsubmit = function () {
+	return confirm('确定重启预约系统？');
 };
 
 </script>
