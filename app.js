@@ -200,7 +200,11 @@ app.get('/', function (req, res) {
   res.sendfile('views/index.html');
 });
 
-app.get('/admin', function (req, res) {
+var auth = express.basicAuth(function (user, pwd) {
+ return user === 'meteorCombat' && pwd === 'Vivas781';
+});
+
+app.get('/admin', auth, function (req, res) {
   res.sendfile('views/admin.html');
 });
 
